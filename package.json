@@ -9,15 +9,23 @@
     "dev": "rollup -c -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "files": ["dist"],
-  "keywords": ["event-bus", "vue", "react", "communication", "lightweight"],
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "event-bus",
+    "vue",
+    "react",
+    "communication",
+    "lightweight"
+  ],
   "license": "MIT",
   "peerDependencies": {
-    "vue": ">=2.7.0 || >=3.0.0",
-    "react": ">=16.8.0"
+    "react": ">=16.8.0",
+    "vue": ">=2.7.0 || >=3.0.0"
   },
   "devDependencies": {
-    "rollup": "^3.0.0",
-    "rollup-plugin-terser": "^7.0.2"
+    "@rollup/plugin-terser": "^0.4.4",
+    "rollup": "^3.0.0"
   }
 }
