@@ -118,6 +118,20 @@ export const useVueEventBus = (customEventBus) => {
     once: safeCall('once', () => {}, true),
     off: safeCall('off', undefined),
     emit: safeCall('emit', undefined),
+    // 新增功能
+    onMany: safeCall('onMany', () => {}, true),
+    onceMany: safeCall('onceMany', () => {}, true),
+    setPriority: safeCall('setPriority', false),
+    getPriorities: safeCall('getPriorities', null),
+    getMetrics: safeCall('getMetrics', {}),
+    resetMetrics: safeCall('resetMetrics', undefined),
+    setOptions: safeCall('setOptions', undefined),
+    has: safeCall('has', false),
+    count: safeCall('count', 0),
+    getEventNames: safeCall('getEventNames', []),
+    // 调试API直接引用
+    debug: eventBus.debug,
+    // 清理函数
     cleanup
   };
 };
@@ -156,5 +170,22 @@ export const createVuePlugin = (options = {}) => {
 // SSR安全版本
 export const createSSRSafeEventBus = () => {
   const noop = () => () => {};
-  return { on: noop, once: noop, off: () => {}, emit: () => {}, cleanup: () => {} };
+  return { 
+    on: noop, 
+    once: noop, 
+    off: () => {}, 
+    emit: () => {}, 
+    onMany: noop,
+    onceMany: noop,
+    setPriority: () => false,
+    getPriorities: () => null,
+    getMetrics: () => ({}),
+    resetMetrics: () => {},
+    setOptions: () => {},
+    has: () => false,
+    count: () => 0,
+    getEventNames: () => [],
+    debug: {},
+    cleanup: () => {} 
+  };
 };

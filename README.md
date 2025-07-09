@@ -154,20 +154,25 @@ eventBus.onceMany(
 ### Vue 集成
 
 ```javascript
-import { useVueEventBus } from 'trame/vue';
+import { useVueEventBus } from 'trame';
 import { ref } from 'vue';
 
 export default {
   setup() {
     const user = ref(null);
-    const { on, emit } = useVueEventBus();
+    const { on, emit, onMany, debug } = useVueEventBus();
 
     // 订阅事件
     on('user.update', (userData) => {
       user.value = userData;
     });
 
-    // 组件卸载时自动清理订阅
+    // 同时订阅多个事件
+    onMany(['user.login', 'user.logout'], (eventName, userData) => {
+      console.log(`用户${eventName === 'user.login' ? '登录' : '登出'}:`, userData);
+    });
+
+    // 组件卸载时自动清理所有订阅
     const updateUser = () => {
       emit('user.update', { name: '李四', id: '456' });
     };
@@ -177,20 +182,45 @@ export default {
 };
 ```
 
+### 创建Vue插件
+
+```javascript
+import { createApp } from 'vue';
+import { createVuePlugin } from 'trame';
+import App from './App.vue';
+
+const app = createApp(App);
+
+// 注册插件，全局使用事件总线
+app.use(createVuePlugin());
+
+app.mount('#app');
+
+// 在任何组件中使用
+// Vue 3: const { emit } = inject('eventBus') 或 app.config.globalProperties.$eventBus
+// Vue 2: this.$eventBus
+```
+
 ### React 集成
 
 ```jsx
 import React, { useState } from 'react';
-import { useReactEventBus } from 'trame/react';
+import { useReactEventBus } from 'trame';
 
 function UserProfile() {
   const [user, setUser] = useState(null);
-  const { on, emit } = useReactEventBus();
+  const { on, emit, onMany, debug } = useReactEventBus();
 
   // 订阅事件并在组件卸载时自动清理
   on('user.select', (userData) => {
     setUser(userData);
   });
+
+  // 使用调试功能
+  React.useEffect(() => {
+    debug.startMonitoring();
+    return () => debug.stopMonitoring();
+  }, []);
 
   const selectUser = () => {
     emit('user.select', { name: '王五', id: '789' });
@@ -245,14 +275,37 @@ console.log('事件数量:', metrics.eventCount);
 
 | 方法 | 参数 | 返回值 | 描述 |
 |------|------|--------|------|
-| `on` | `(event, handler, options?)` | `Number/Function` | 订阅事件，返回处理函数ID或取消订阅函数 |
-| `once` | `(event, handler, options?)` | `Number/Function` | 订阅一次性事件，触发后自动取消订阅 |
+| `on` | `(event, handler, options?)` | `Function` | 订阅事件，返回取消订阅函数 |
+| `once` | `(event, handler)` | `Function` | 订阅一次性事件，触发后自动取消订阅 |
 | `onMany` | `(events, handler, options?)` | `Function` | 订阅多个事件，返回组合的取消订阅函数 |
 | `onceMany` | `(events, handler, options?)` | `Function` | 订阅多个一次性事件，任一触发后取消所有 |
-| `off` | `(event, handler)` | `void` | 取消特定事件的订阅 |
+| `off` | `(event, handler?)` | `void` | 取消特定事件的订阅 |
 | `emit` | `(event, ...args)` | `void` | 触发事件，传递参数给所有订阅者 |
 | `setPriority` | `(event, handler, priority)` | `boolean` | 设置事件处理函数的优先级 |
 | `getPriorities` | `(event)` | `Array` | 获取事件处理函数的优先级信息 |
+| `getMetrics` | `()` | `Object` | 获取性能指标数据 |
+| `resetMetrics` | `()` | `void` | 重置性能指标数据 |
+| `setOptions` | `(options)` | `void` | 设置配置选项 |
+| `has` | `(event)` | `boolean` | 检查是否存在特定事件的订阅 |
+| `count` | `(event)` | `number` | 获取指定事件的订阅者数量 |
+| `getEventNames` | `()` | `Array` | 获取已订阅事件名称列表 |
+| `clear` | `()` | `void` | 清除所有事件订阅 |
+
+### 框架适配器
+
+#### Vue适配器 (useVueEventBus)
+
+提供与核心API相同的所有方法，并自动处理组件生命周期，组件卸载时清理订阅。
+额外提供：
+
+- `cleanup()` - 手动清理当前组件的所有订阅
+
+#### React适配器 (useReactEventBus)
+
+提供与核心API相同的所有方法，自动处理React组件的生命周期。
+额外提供：
+
+- `countSubscriptions()` - 获取当前组件订阅的事件数量
 
 ### 选项配置
 
@@ -269,7 +322,11 @@ eventBus.setOptions({
   logNamespace: 'myApp',    // 日志命名空间
   logTimestamps: true,      // 是否记录时间戳
   logEventData: true,       // 是否记录事件数据
-  maxLogEntries: 1000       // 最大日志条目数
+  maxLogEntries: 1000,      // 最大日志条目数
+
+  // 调试回调
+  logHandler: (entry) => {}, // 自定义日志处理函数
+  visualizer: (entry, data) => {} // 可视化调试回调
 });
 ```
 
