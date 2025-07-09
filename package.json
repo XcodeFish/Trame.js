@@ -1,0 +1,23 @@
+{
+  "name": "trame",
+  "version": "1.0.0",
+  "description": "超轻量跨框架组件通信库",
+  "main": "dist/trame.cjs.js",
+  "module": "dist/trame.esm.js",
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "files": ["dist"],
+  "keywords": ["event-bus", "vue", "react", "communication", "lightweight"],
+  "license": "MIT",
+  "peerDependencies": {
+    "vue": ">=2.7.0 || >=3.0.0",
+    "react": ">=16.8.0"
+  },
+  "devDependencies": {
+    "rollup": "^3.0.0",
+    "rollup-plugin-terser": "^7.0.2"
+  }
+}
