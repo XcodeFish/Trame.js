@@ -22,18 +22,18 @@ Trame.js 是一个超轻量级的跨框架组件通信库，名称取自英文 "
 ```mermaid
 flowchart TB
     subgraph core ["核心层 (Core)"]
-        EB[事件总线 EventBus]
+        EB["事件总线 EventBus"]
     end
 
     subgraph adapters ["适配器层 (Adapters)"]
-        VueAdapter[Vue适配器]
-        ReactAdapter[React适配器]
+        VueAdapter["Vue适配器"]
+        ReactAdapter["React适配器"]
     end
 
     subgraph apps ["应用层 (Applications)"]
-        VueApp[Vue应用]
-        ReactApp[React应用]
-        JSApp[纯JS应用]
+        VueApp["Vue应用"]
+        ReactApp["React应用"]
+        JSApp["纯JS应用"]
     end
 
     EB --> VueAdapter
